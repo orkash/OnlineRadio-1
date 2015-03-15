@@ -1,13 +1,14 @@
 package com.example.onlineradio;
 
 import android.os.Bundle;
+import android.os.Environment;
 
 import java.io.IOException;
 
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,7 +17,7 @@ import android.widget.ProgressBar;
 
 import com.example.onlineradio.R;
 
-public class Main_Activity extends ActionBarActivity implements OnClickListener {
+public class Main_Activity extends Activity{
 
 	 private ProgressBar playSeekBar;
 
@@ -44,20 +45,20 @@ public class Main_Activity extends ActionBarActivity implements OnClickListener 
 	        playSeekBar.setVisibility(View.INVISIBLE);
 
 	        buttonPlay = (Button) findViewById(R.id.buttonPlay);
-	        buttonPlay.setOnClickListener(this);
+	        buttonPlay.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					 startPlaying();
+				}
+			});
 
 	        buttonStopPlay = (Button) findViewById(R.id.buttonStopPlay);
 	        buttonStopPlay.setEnabled(false);
-	        buttonStopPlay.setOnClickListener(this);
+	        buttonStopPlay.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					 stopPlaying();
+				}
+			});
 
-	    }
-
-	    public void onClick(View v) {
-	        if (v == buttonPlay) {
-	            startPlaying();
-	        } else if (v == buttonStopPlay) {
-	            stopPlaying();
-	        }
 	    }
 
 	    private void startPlaying() {
@@ -66,21 +67,14 @@ public class Main_Activity extends ActionBarActivity implements OnClickListener 
 
 	        playSeekBar.setVisibility(View.VISIBLE);
 
-	        //player.prepareAsync();
-
-	        player.setOnPreparedListener(new OnPreparedListener() {
-
-	            public void onPrepared(MediaPlayer mp) {
-	                player.start();
-	            }
-	        });
+	        player.prepareAsync();
 
 	    }
 
 	    private void stopPlaying() {
 	        if (player.isPlaying()) {
 	            player.stop();
-	            player.release();
+	            player.reset();
 	            initializeMediaPlayer();
 	        }
 
@@ -90,9 +84,13 @@ public class Main_Activity extends ActionBarActivity implements OnClickListener 
 	    }
 
 	    private void initializeMediaPlayer() {
-	        player = new MediaPlayer();
+	    	
+	    	player = new MediaPlayer();
 	        try {
-	            player.setDataSource("http://www.radyoretro.com/");
+	        	//player.setDataSource("http://radyoretro.com:5836/");
+	        	String filePath = "/Users/selinozturk/Music/olga/06 - Undertow.mp3";
+	        	player.setDataSource(filePath);
+	        	
 	        } catch (IllegalArgumentException e) {
 	            e.printStackTrace();
 	        } catch (IllegalStateException e) {
@@ -100,6 +98,12 @@ public class Main_Activity extends ActionBarActivity implements OnClickListener 
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }
+	        
+	        player.setOnPreparedListener(new OnPreparedListener(){
+	            public void onPrepared(MediaPlayer mp) {
+	                     player.start();
+	            } 
+	        });
 
 	        player.setOnBufferingUpdateListener(new OnBufferingUpdateListener() {
 
